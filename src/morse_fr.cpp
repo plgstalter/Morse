@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <string>
 
-// Ce programme contiendra de quoi faire la traduction morse/fr et fr/morse entre deux textes
-
 
 // Alphabet Morse
 std::map<char, const char *> morse_alphabet(){
@@ -57,43 +55,68 @@ bool separation_word(std::string vecteur, int rang) {
     return (vecteur[rang]=='.')&&(vecteur[rang+1]=='.')&&(vecteur[rang+2]=='.')&&(vecteur[rang+3]=='.')&&(vecteur[rang+4]=='.')&&(vecteur[rang+5]=='.')&&(vecteur[rang+6]=='.');
 }
 
-std::vector<char> decode(std::string morse) {
-    int i=0;
-    int n=morse.size();
-    std::vector<char> resultat;
+std::vector<std::string> separate_words(std::string morse) {
+    int n = morse.size();
+    int i = 0;
     std::string temp;
-    std::map<char, const char *> alpham = morse_alphabet();
-    std::cout << "n=" << n << std::endl;
+    std::vector<std::string> resultat;
     while (i<n) {
-        std::cout << "i=" << i <<std::endl;
         if (separation_word(morse, i)) {
-            resultat.push_back(' ');
-            i = i + 7;
-            std::cout << "i=" << i <<std::endl;
+            resultat.push_back(temp);
+            temp.resize(0);
+            i = i + 6;
+        }
+        else if (i==n-1) {
+            temp.push_back(morse[i]);
+            resultat.push_back(temp);
         }
         else {
-            for (int j=i; j<n; j++) {
-                std::cout << "i=" << i <<std::endl;
-                if (separation(morse, j)) {
-                    i = i + 3;
-                    break;
-                }
-                else {
-                    temp.push_back(morse[j]);
-                    i++;
-                }
-            }
-            std::map<char, const char *>::iterator it;
-            const char * test = temp.c_str();
-            for (it=alpham.begin(); it!=alpham.end(); it++) {
-                if (strcmp(it->second, test)==0) {
-                    resultat.push_back(it->first);
-                    break;
-                }
-            }
-            std::cout << "i=" << i <<std::endl;
-            temp.resize(0);
+            temp.push_back(morse[i]);
         }
+        i++;
+    }
+    return resultat;
+}
+
+std::string decode(std::string morse) {
+    std::map<char, const char *> alpham = morse_alphabet();
+    std::map<char, const char *>::iterator it;
+    std::vector<std::string> words = separate_words(morse);
+    std::string resultat, temp;
+    int j;
+    for (int i=0; i<words.size(); i++) {
+        j = 0;
+        std::string word = words[i];
+        std::cout << word << std::endl;
+        temp.resize(0);
+        while (j<word.size()) {
+            if (separation(word, j)) {
+                const char * test = temp.c_str();
+                for (it=alpham.begin(); it!=alpham.end(); it++) {
+                    if (strcmp(it->second, test)==0) {
+                        resultat.push_back(it->first);
+                        break;
+                    }
+                }
+                temp.resize(0);
+                j = j + 2;
+            }
+            else if (j==word.size()-1){
+                temp.push_back(word[j]);
+                const char * test = temp.c_str();
+                for (it=alpham.begin(); it!=alpham.end(); it++) {
+                    if (strcmp(it->second, test)==0) {
+                        resultat.push_back(it->first);
+                        break;
+                    }
+                }
+            }
+            else {
+                temp.push_back(word[j]);
+            }
+            j++; 
+        }
+        resultat.push_back(' ');
     }
     return resultat;
 }
@@ -120,36 +143,19 @@ std::vector<const char *> fr_to_morse(std::string fr) {
 // Tests
 int main(int argc, char const *argv[])
 {
-    // std::cout << "Entrez votre texte à coder" << std::endl;
-    // // on récupère le texte à coder
-    // std::vector<char> a_coder;
-    // char index[100];
-    // std::cin.get(index, 100);
-    // for (int i=0; i<98; i++) {
-    //     if (index[i]==index[i+1] && index[i+1]==index[i+2]) {
-    //         break;
-    //     }
-    //     a_coder.push_back(index[i]);
-    // }
-    // //on encode en morse
-    // std::vector<const char *> morse_code = fr_to_morse(a_coder);
-    // for (int i=0; i<morse_code.size(); i++) {
-    //     std::cout << morse_code[i];
-    // }
-    // std::cout << " " << std::endl;
-
-
-
-
-    std::cout << "Entrez votre texte à décoder" << std::endl;
+    std::cout << "Entrez votre texte" << std::endl;
     std::string entree;
     std::getline(std::cin, entree);
-    //on décode
-    std::vector<char> decodee = decode(entree);
-    for (int i=0; i<decodee.size(); i++) {
-        std::cout << decodee[i];
+    if (strcmp(argv[1], "code")==0) {
+        std::vector<const char *> res = fr_to_morse(entree);
+        for (int i=0; i<res.size(); i++) {
+            std::cout << res[i];
+        }
+        std::cout << " " << std::endl;
     }
-    std::cout << " " << std::endl;
-    std::cout << decodee.size() << std::endl;
+    else if (strcmp(argv[1], "decode")==0) {
+        std::string decodee = decode(entree);
+        std::cout << decodee << std::endl;
+    }
     return 0;
 }
