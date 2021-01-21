@@ -1,2 +1,6 @@
 TEST/
+wave\ files/
+*.wav
+./morse
 .vscode
+morse
