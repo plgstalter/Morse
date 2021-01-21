@@ -1,7 +1,10 @@
 #include <iostream>
 #include <cmath>
 #include <fstream>
+#include <vector>
 #include <string>
+#include<cstdlib>
+#include<cstring>
 using namespace std;
 
 namespace little_endian_io
@@ -16,71 +19,9 @@ namespace little_endian_io
 }
 using namespace little_endian_io;
 
-void write_beep(double m) {
-    const double two_pi = 6.283185307179586476925286766559;
-    const double max_amplitude = 32760;  // "volume"
 
-    double hz        = 44100;    // samples per second
-    double frequency = 261.626;  // middle C
-    double seconds   = m*0.5;      // time
-
-    int N = hz * seconds;  // total number of samples
-    for (int n = 0; n < N; n++)
-    {
-        double amplitude = (double)n / N * max_amplitude;
-        double value     = sin( (two_pi * n * frequency) / hz );
-        write_word( f, (int)(                 amplitude  * value), 2 );
-        write_word( f, (int)((max_amplitude - amplitude) * value), 2 );
-    }
-}
-
-void write_silence(double m) {
-    const double two_pi = 6.283185307179586476925286766559;
-    const double max_amplitude = 32760;  // "volume"
-
-    double hz        = 44100;    // samples per second
-    double seconds   = m*0.5;      // time
-
-    int N = hz * seconds;  // total number of samples
-    for (int n = 0; n < N; n++)
-    {
-        double amplitude = (double)n / N * max_amplitude;
-        double value     = 0.0;
-        write_word( f, (int)(                 amplitude  * value), 2 );
-        write_word( f, (int)((max_amplitude - amplitude) * value), 2 );
-    }
-}
-
-void end_audio(ofstream f, size_t data_chunk_pos) {
-    // (We'll need the final file size to fix the chunk sizes above)
-    size_t file_length = f.tellp();
-
-    // Fix the data chunk header to contain the data size
-    f.seekp( data_chunk_pos + 4 );
-    write_word( f, file_length - data_chunk_pos + 8 );
-
-    // Fix the file header to contain the proper RIFF chunk size, which is (file size - 8) bytes
-    f.seekp( 0 + 4 );
-    write_word( f, file_length - 8, 4 ); 
-}
-
-int main(int argc, char const *argv[])
-{
-    // get the name
-    const char * path;
-    if (argc > 1) {
-        path = argv[1];
-    }
-    else {
-        std::cout << "file path ?" << std::endl;
-        std::string entree;
-        std::getline(std::cin, entree);
-        path = entree.c_str();
-    }
-
-
-    // file init
-    ofstream f(path, ios::binary );
+void create_wave_file(std::string morse, const char * pname) {
+    ofstream f(pname, ios::binary );
 
     // Write the file headers
     f << "RIFF----WAVEfmt ";     // (chunk size to be filled in later)
@@ -95,15 +36,36 @@ int main(int argc, char const *argv[])
     // Write the data chunk header
     size_t data_chunk_pos = f.tellp();
     f << "data----";  // (chunk size to be filled in later)
+
+    const double two_pi = 6.283185307179586476925286766559;
+    const double max_amplitude = 32760;  // "volume"
+
+    double hz        = 44100;    // samples per second
+    double frequency = 261.626;  // middle C
+    double seconds   = 0.1;      // time
+    int N = hz * seconds;  // total number of samples
+
+    for (int i=0; i<morse.size(); i++) {
+        if (morse[i] == '=') {
+            for (int n = 0; n < N; n++)
+            {
+                double amplitude = (double)n / N * max_amplitude;
+                double value     = sin( (two_pi * n * frequency) / hz );
+                write_word( f, (int)(                 amplitude  * value), 2 );
+                write_word( f, (int)((max_amplitude - amplitude) * value), 2 );
+            }
+        }
+        else {
+            for (int n = 0; n < N; n++)
+            {
+                double amplitude = (double)n / N * max_amplitude;
+                double value     = 0.0;
+                write_word( f, (int)(                 amplitude  * value), 2 );
+                write_word( f, (int)((max_amplitude - amplitude) * value), 2 );
+            }
+        }
+    }
     
-
-
-    //write sound
-    
-    
-
-
-
     // file closing
     // (We'll need the final file size to fix the chunk sizes above)
     size_t file_length = f.tellp();
@@ -115,6 +77,12 @@ int main(int argc, char const *argv[])
     // Fix the file header to contain the proper RIFF chunk size, which is (file size - 8) bytes
     f.seekp( 0 + 4 );
     write_word( f, file_length - 8, 4 ); 
+}
 
+int main(int argc, char const *argv[])
+{
+    const char * pname = argv[1];
+    std::string morse = "=.=.=...=.===...=.===.=.=...=.=.===...===...";
+    create_wave_file(morse, pname);
     return 0;
 }
