@@ -2,19 +2,32 @@
 
 ## Récapitulatif
 
-Pour l'instant, on peut
+Pas besoin de `Makefile` :)
 
-- [x] coder / décoder morse/texte.
+Simplement, faire `g++ -o morse main.cpp src/*.cpp` puis `./morse ...`
 
-  Pour ceci, faire 
+On peut 
+
+- [x] entrer du texte et recevoir un fichier `.wav`
+
+  Pour cela, 
   
-  - `g++ src/morse_txt/cpp`
-  
-  - `./a.out code`pour encoder, `./a.out decode`pour décoder
-  
-  - entrer la chaîne de caractères
-  
-- [x] générer un fichier `.wav` à partir d'une chaîne encodée en morse.
+  - faire `./morse code`
+
+  - Renseigner la chaine à coder
+
+  - Renseigner le nom du fichier `wav` qu'on veut récupérer
+
+  Le tour est joué !
+
+- [x] entrer un texte "morse" et recevoir la traduction
+
+  faire `./morse decode` puis entrer la chaîne à décoder
+
+- [ ] rentrer un `.wav` et le décoder
+
+  ... pas encore réussi à faire ça :/
+
 
 ## A faire
 
