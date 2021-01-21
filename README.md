@@ -24,4 +24,4 @@ Pour l'instant, on peut
 
 ## Remarques
 
-Pour la partie création de fichier `.wav`, je me suis librement et largement inspiré d'un code trouvé sur internet (je vais mettre la source).
+Pour la partie création de fichier `.wav`, je me suis librement et largement inspiré d'un code trouvé sur internet (source : http://www.cplusplus.com/forum/beginner/166954/).
