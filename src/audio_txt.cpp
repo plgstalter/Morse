@@ -78,11 +78,3 @@ void create_wave_file(std::string morse, const char * pname) {
     f.seekp( 0 + 4 );
     write_word( f, file_length - 8, 4 ); 
 }
-
-int main(int argc, char const *argv[])
-{
-    const char * pname = argv[1];
-    std::string morse = "=.=.=...=.===...=.===.=.=...=.=.===...===...";
-    create_wave_file(morse, pname);
-    return 0;
-}

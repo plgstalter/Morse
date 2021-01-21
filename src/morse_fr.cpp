@@ -123,39 +123,18 @@ std::string decode(std::string morse) {
 
 
 // De texte à morse
-std::vector<const char *> fr_to_morse(std::string fr) {
-    std::vector<const char *> resultat;
+std::string code(std::string fr) {
+    std::string resultat;
     std::map<char, const char *> alpham = morse_alphabet();
     int n = fr.size();
     for (int i=0; i<n; i++) {
         if (fr[i] == ' ') {
-            resultat.push_back("......."); //espace inter-mots
+            resultat += "......."; //espace inter-mots
         }
         else {
-            resultat.push_back(alpham[fr[i]]);
-            resultat.push_back("..."); //espace inter-caractères
+            resultat += alpham[fr[i]];
+            resultat += "..."; //espace inter-caractères
         } 
     }
     return resultat;
-}
-
-
-// Tests
-int main(int argc, char const *argv[])
-{
-    std::cout << "Entrez votre texte" << std::endl;
-    std::string entree;
-    std::getline(std::cin, entree);
-    if (strcmp(argv[1], "code")==0) {
-        std::vector<const char *> res = fr_to_morse(entree);
-        for (int i=0; i<res.size(); i++) {
-            std::cout << res[i];
-        }
-        std::cout << " " << std::endl;
-    }
-    else if (strcmp(argv[1], "decode")==0) {
-        std::string decodee = decode(entree);
-        std::cout << decodee << std::endl;
-    }
-    return 0;
 }

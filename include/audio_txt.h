@@ -1,3 +1,2 @@
 #pragma once
-char* audio_to_txt();
-void txt_to_audio(char* txt);
+void create_wave_file(std::string morse, const char * pname);
