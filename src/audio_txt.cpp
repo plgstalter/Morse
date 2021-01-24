@@ -5,7 +5,35 @@
 #include <string>
 #include<cstdlib>
 #include<cstring>
-using namespace std;
+
+int what_to_write (std::string morse, int rang) {
+  int n = morse.size();
+  if (morse[rang]=='.') {
+    if (rang >= n-3) {
+      return 0;
+    }
+    if (morse[rang+1]=='.'&&morse[rang+2]=='.'&&morse[rang+3]=='=') {
+      return 1;
+    }
+    if (rang >= n - 7) {
+      return 0;
+    }
+    if (morse[rang+1]=='.'&&morse[rang+2]=='.'&&morse[rang+3]=='.'&&morse[rang+4]=='.'&&morse[rang+5]=='.'&&morse[rang+6]=='.') {
+      return 2;
+    }
+    return 0;
+    
+  }
+  else {
+    if (rang >= n-3) {
+      return 3;
+    }
+    if (morse[rang+1]=='='&&morse[rang+2]=='=') {
+      return 4;
+    }
+    return 3;
+  }
+}
 
 namespace little_endian_io
 {
@@ -21,7 +49,7 @@ using namespace little_endian_io;
 
 
 void create_wave_file(std::string morse, const char * pname) {
-    ofstream f(pname, ios::binary );
+    std::ofstream f(pname, std::ios::binary );
 
     // Write the file headers
     f << "RIFF----WAVEfmt ";     // (chunk size to be filled in later)
@@ -45,25 +73,45 @@ void create_wave_file(std::string morse, const char * pname) {
     double seconds   = 0.1;      // time
     int N = hz * seconds;  // total number of samples
 
-    for (int i=0; i<morse.size(); i++) {
-        if (morse[i] == '=') {
-            for (int n = 0; n < N; n++)
+    int a;
+    double b;
+    int i=0;
+
+    while (i<morse.size()) {
+      switch (what_to_write(morse, i)) {
+        case 0:
+          a = 1;
+          b = 0.0;
+          i++;
+          break;
+        case 1:
+          a = 3;
+          b = 0.0;
+          i = i + 3;
+          break;
+        case 2:
+          a = 7;
+          b = 0.0;
+          i = i + 7;
+          break;
+        case 3:
+          a = 1;
+          b = 1.0;
+          i++;
+          break;
+        case 4:
+          a = 3;
+          b = 1.0;
+          i = i + 3;
+          break;
+      }
+      for (int n = 0; n < a*N; n++)
             {
-                double amplitude = (double)n / N * max_amplitude;
-                double value     = sin( (two_pi * n * frequency) / hz );
+                double amplitude = (double)n /(a*N) * max_amplitude;
+                double value     = b*sin( (two_pi * n * frequency) / hz );
                 write_word( f, (int)(                 amplitude  * value), 2 );
                 write_word( f, (int)((max_amplitude - amplitude) * value), 2 );
             }
-        }
-        else {
-            for (int n = 0; n < N; n++)
-            {
-                double amplitude = (double)n / N * max_amplitude;
-                double value     = 0.0;
-                write_word( f, (int)(                 amplitude  * value), 2 );
-                write_word( f, (int)((max_amplitude - amplitude) * value), 2 );
-            }
-        }
     }
     
     // file closing
